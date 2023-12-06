@@ -3,86 +3,52 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mi Proyecto Apig',
-      theme: ThemeData(
-        primarySwatch: const Color.fromARGB(255, 40, 166, 230),
-      ),
-      home: MyHomePage(),
-    );
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var urlData;
+  void getApiData()async{
+    var url = Uri.parse("https://api.unsplash.com/photos/?client_id=2b4S3Hur3_ojyYrhF1BRjFylYFrME3mMkV5pa4cTNvs");
+    final res = await http.get(url);
+    setState(() {
+      urlData = jsonDecode(res.body);
+    });
   }
-}
 
-class MyHomePage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  String searchQuery = "";
-  List<String> imageUrls = []; 
-
-  Future<void> fetchImages() async {
-    final response = await http.get(
-         'https://api.unsplash.com/search/photos?query=$searchQuery',
-        headers: {
-          'Authorization': '', // Aqui va mi api key
-        });
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List<dynamic> results = data['results'];
-      List urls = results.map((result) => result['urls']['regular']).toList();
-
-      setState(() {
-        imageUrls = urls;
-      });
-    }
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getApiData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Buscador de imágenes'),
+        title: Text('ProyectoApi_IramGmz'),
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Buscar . . .',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    fetchImages(); // Trigger de API request y update de las url imagen
-                  },
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-            ),
+      body: Center(child: urlData==null?CircularProgressIndicator(): GridView.builder(gridDelegate:
+      SliverGridDelegateWithFixedCrossAxisCount(mainAxisSpacing: 6,crossAxisCount: 2, crossAxisSpacing: 6),
+      itemBuilder: (context, i){
+        return Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(urlData['urls'][i]['full'])
+            )
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: imageUrls.length,
-              itemBuilder: (context, index) {
-                return Image.network(imageUrls[index]);
-              },
-            ),
-          ),
-        ],
-      ),
+        );
+      }),),
     );
   }
 }
+
