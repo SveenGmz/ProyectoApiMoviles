@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:proyectoapi/servicios/aut_servicios.dart';
 import 'package:proyectoapi/widget/logica_api.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -32,9 +34,12 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.logout), // Icono de logout
             title: Text('Logout'),
-            onTap: () {
-              // Lógica para el logout
-              // ...
+            onTap: () async {
+             // Llamada a la función de logout en el servicio de autenticación
+              await Provider.of<AuthService>(context, listen: false).logout();
+
+              // Redirección a la página de inicio de sesión después de cerrar sesión
+              Navigator.pushReplacementNamed(context, 'login');
             },
           ),
         ],
