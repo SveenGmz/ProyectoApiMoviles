@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:proyectoapi/pages/favoritos_page.dart';
 import 'package:proyectoapi/servicios/aut_servicios.dart';
-import 'package:proyectoapi/widget/logica_api.dart';
 
 class CustomDrawer extends StatelessWidget {
   @override
@@ -15,7 +15,7 @@ class CustomDrawer extends StatelessWidget {
               color: Colors.blue,
             ),
             child: Text(
-              'Drawer Header',
+              'Iniciado como:',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -23,21 +23,25 @@ class CustomDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.favorite), // Icono de favoritos
+            leading: Icon(Icons.favorite),
             title: Text('Favoritos'),
             onTap: () {
-              // Lógica para el apartado de favoritos
-              // ...
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoritosPage(),
+                ),
+              );
             },
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.logout), // Icono de logout
+            leading: Icon(Icons.logout),
             title: Text('Logout'),
             onTap: () async {
-             // Llamada a la función de logout en el servicio de autenticación
+              // Llamada a la función de logout en el servicio de autenticación
               await Provider.of<AuthService>(context, listen: false).logout();
-
               // Redirección a la página de inicio de sesión después de cerrar sesión
               Navigator.pushReplacementNamed(context, 'login');
             },

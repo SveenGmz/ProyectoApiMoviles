@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:proyectoapi/servicios/aut_servicios.dart';
 
 class MyApiWidget extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class _MyApiWidgetState extends State<MyApiWidget> {
     final res = await http.get(url);
     setState(() {
       urlData = jsonDecode(res.body);
+      print(urlData);
     });
   }
 
@@ -23,6 +25,28 @@ class _MyApiWidgetState extends State<MyApiWidget> {
   void initState() {
     super.initState();
     getApiData();
+  }
+
+  void addToFavorites(String imageUrl) async {
+    try {
+      final AuthService authService = AuthService();
+      final String userId = await authService.obtenerUserId();
+
+      await authService.agregarFavorito(context, imageUrl, userId);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Imagen agregada a favoritos con éxito'),
+        ),
+      );
+    } catch (error) {
+      print('Error al agregar favorito: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al agregar favorito'),
+        ),
+      );
+    }
   }
 
   @override
@@ -44,6 +68,9 @@ class _MyApiWidgetState extends State<MyApiWidget> {
                     MaterialPageRoute(
                       builder: (context) => FullImageView(
                         url: urlData[i]['urls']['full'],
+                        onFavoritePressed: () {
+                          addToFavorites(urlData[i]['urls']['full']);
+                        },
                       ),
                     ),
                   );
@@ -64,26 +91,70 @@ class _MyApiWidgetState extends State<MyApiWidget> {
   }
 }
 
-class FullImageView extends StatelessWidget {
+class FullImageView extends StatefulWidget {
   final String url;
-  FullImageView({required this.url});
+  final VoidCallback onFavoritePressed;
+
+  FullImageView({
+    required this.url,
+    required this.onFavoritePressed,
+  });
+
+  @override
+  _FullImageViewState createState() => _FullImageViewState();
+}
+
+class _FullImageViewState extends State<FullImageView> {
+  bool isFavorited = false;
+
+  void toggleFavorite() {
+    setState(() {
+      isFavorited = !isFavorited;
+      if (isFavorited) {
+        // Puedes implementar lógica adicional aquí si es necesario
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Full Image View'),
-      ),
-      body: Hero(
-        tag: 'full',
-        child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(url),
-              fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          Hero(
+            tag: 'full',
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(widget.url),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
-        ),
+          Positioned(
+            bottom: 32,
+            left: 300,
+            child: SizedBox(
+              width: 64,
+              height: 64,
+              child: FloatingActionButton(
+                onPressed: () {
+                  widget.onFavoritePressed(); // Llamada a la función del padre
+                  toggleFavorite();
+                },
+                backgroundColor: Colors.white.withOpacity(0.0),
+                child: Icon(
+                  isFavorited
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: const Color.fromARGB(255, 228, 62, 50),
+                  size: 60,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

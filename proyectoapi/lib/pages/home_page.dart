@@ -1,84 +1,136 @@
 import 'package:flutter/material.dart';
-import 'package:proyectoapi/widget/drawer.dart';
-import 'package:proyectoapi/widget/logica_api.dart'; 
-class HomePage extends StatelessWidget {
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class MyApiWidget extends StatefulWidget {
+  @override
+  _MyApiWidgetState createState() => _MyApiWidgetState();
+}
+
+class _MyApiWidgetState extends State<MyApiWidget> {
+  var urlData;
+
+  void getApiData() async {
+    var url = Uri.parse(
+        "https://api.unsplash.com/photos/?per_page=30&client_id=2b4S3Hur3_ojyYrhF1BRjFylYFrME3mMkV5pa4cTNvs");
+    final res = await http.get(url);
+    setState(() {
+      urlData = jsonDecode(res.body);
+      print(urlData);
+    });
+  }
+
+   void performSearch(String query) async {
+    var url = Uri.parse(
+        "https://api.unsplash.com/photos/?per_page=30&client_id=2b4S3Hur3_ojyYrhF1BRjFylYFrME3mMkV5pa4cTNvs");
+    final res = await http.get(url);
+    setState(() {
+      urlData = jsonDecode(res.body);
+      print(urlData);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getApiData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-        actions: [
-          // Agrega un botón de menú en la barra de la aplicación
-         
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: size.width,
-            height: size.height * 0.25,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.2),
-                  BlendMode.darken,
-                ),
-                image: AssetImage('assets/1.jpg'),
-                fit: BoxFit.cover,
-              ),
+    return urlData == null
+        ? Center(child: CircularProgressIndicator())
+        : GridView.builder(
+            itemCount: 30,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              mainAxisSpacing: 6,
+              crossAxisCount: 2,
+              crossAxisSpacing: 6,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "What would you like\n to Find?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(15, 20, 15, 0),
-                  width: double.infinity,
-                  height: 50,
-                  child: TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Color.fromARGB(255, 228, 228, 228),
-                      contentPadding: EdgeInsets.only(top: 5),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        size: 20,
-                        color: Color.fromARGB(255, 146, 146, 146),
+            itemBuilder: (context, i) {
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FullImageView(
+                        url: urlData[i]['urls']['full'],
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      hintText: "Search",
-                      hintStyle: TextStyle(
-                        fontSize: 14,
-                        color: Color.fromARGB(255, 131, 131, 131),
+                    ),
+                  );
+                },
+                child: Hero(
+                  tag: 'full_$i',
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(urlData[i]['urls']['full']),
                       ),
                     ),
                   ),
                 ),
-              ],
+              );
+            },
+          );
+  }
+}
+
+class FullImageView extends StatefulWidget {
+  final String url;
+  FullImageView({required this.url});
+
+  @override
+  _FullImageViewState createState() => _FullImageViewState();
+}
+
+class _FullImageViewState extends State<FullImageView> {
+  bool isFavorited = false;
+
+  void toggleFavorite() {
+    setState(() {
+      isFavorited = !isFavorited;
+      if (isFavorited) {
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Hero(
+            tag: 'full',
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(widget.url),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
-          Expanded(
-            child: MyApiWidget(), // Widget para mostrar la API de imágenes
+          Positioned(
+            bottom: 32,
+            left: 300,
+            child: SizedBox(
+              width: 64,
+              height: 64,
+              child: FloatingActionButton(
+                onPressed: () {
+                  toggleFavorite();
+                },
+                backgroundColor: Colors.white.withOpacity(0.0),
+                child: Icon(
+                  isFavorited ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  color: const Color.fromARGB(255, 228, 62, 50),
+                  size: 60,
+                ),
+              ),
+            ),
           ),
         ],
       ),
-      // Asigna el Drawer personalizado al Scaffold
-      drawer: CustomDrawer(),
     );
   }
 }

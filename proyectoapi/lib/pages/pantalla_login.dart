@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:proyectoapi/pages/register_screen.dart';
 import 'package:proyectoapi/providers/login_form_provider.dart';
 import 'package:proyectoapi/servicios/aut_servicios.dart';
-import 'home_page.dart';
+import 'package:proyectoapi/pages/home_page.dart';
+
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
@@ -13,38 +14,52 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Inicio de Sesión'),
-        backgroundColor: Color.fromARGB(255, 77, 65, 240),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Login',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            SizedBox(height: 30.0),
-            ChangeNotifierProvider(
-              create: (_) => _loginFormProvider,
-              child: _LoginForm(
-                emailController: _emailController,
-                passwordController: _passwordController,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image:
+                AssetImage('assets/fondogif.gif'), // Ruta de tu imagen de fondo
+            fit: BoxFit.cover, // Ajusta la imagen al tamaño del contenedor
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Login',
+                style: TextStyle(
+                  color: Colors.white, 
+                  fontSize: 50,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
-            ),
-            SizedBox(height: 20.0),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterScreen()),
-                );
-              },
-              child: Text('¿No tienes una cuenta? ¡Regístrate aquí!'),
-            ),
-          ],
+              SizedBox(height: 30.0),
+              ChangeNotifierProvider(
+                create: (_) => _loginFormProvider,
+                child: _LoginForm(
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                ),
+              ),
+              SizedBox(height: 20.0),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                  );
+                },
+                child: Text('¿No tienes una cuenta? ¡Regístrate aquí!',
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 170, 168, 168), 
+                  fontSize: 15, 
+                  fontWeight: FontWeight.w300, 
+                ),),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -72,7 +87,10 @@ class _LoginForm extends StatelessWidget {
             controller: emailController,
             decoration: InputDecoration(
               labelText: 'Correo electrónico',
-              border: OutlineInputBorder(),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              fillColor: Color.fromARGB(255, 247, 247, 247).withOpacity(0.5),
+              filled: true,
               prefixIcon: Icon(Icons.email),
             ),
             keyboardType: TextInputType.emailAddress,
@@ -92,7 +110,10 @@ class _LoginForm extends StatelessWidget {
             obscureText: true,
             decoration: InputDecoration(
               labelText: 'Contraseña',
-              border: OutlineInputBorder(),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+              fillColor: Color.fromARGB(255, 247, 247, 247).withOpacity(0.5),
+              filled: true,
               prefixIcon: Icon(Icons.lock),
             ),
             validator: (value) {
@@ -118,7 +139,7 @@ class _LoginForm extends StatelessWidget {
                 if (result == null) {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
+                    MaterialPageRoute(builder: (context) => MyApiWidget()),
                   );
                 } else {
                   showDialog(
@@ -141,9 +162,12 @@ class _LoginForm extends StatelessWidget {
                 }
               }
             },
-            child: Text('Iniciar Sesión'),
+            child: Text('Iniciar Sesión',
+            style: TextStyle(
+              color: const Color.fromARGB(255, 170, 168, 168),
+            )),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color.fromARGB(255, 102, 92, 240),
+              backgroundColor: Color.fromARGB(255, 159, 30, 233),
             ),
           ),
         ],
